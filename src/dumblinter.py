@@ -50,15 +50,16 @@ def find_synonyms(word):
         synonyms.append(item.get_text())
     return synonyms
 
-def build_dictionary(dct):
+def build_dictionary(dict_file):
     '''Takes in file name and builds a dictionary set from it.'''
     dictionary = set()
-    print(dct)
+    print('Using dictionary: ' + dict_file)
     try:
-        d = open(dct, 'r')
-        for line in d:
-            dictionary.add(line.lower())
-        d.close()
+        dict_fd = open(dict_file, 'r')
+        for line in dict_fd:
+            # beware of newline characters
+            dictionary.add(line.strip().lower())
+        dict_fd.close()
     except:
         print('Something went wrong with building the dictionary.', end=' ')
         print('Make sure you follow specifications.')
@@ -76,12 +77,11 @@ def display_synonyms(lst, dictionary):
     print('\n', end='')
 
 
-def parse_file(fd, dictionary, minimum=3):
+def parse_file(file, dictionary, minimum=3):
     '''Takes in file descriptor and a dictionary and parses the file.
        Returns text for a new file.'''
-    print(dictionary)
     new_text = ''
-    for cnt, line in enumerate(fd, 1):
+    for cnt, line in enumerate(file, 1):
         print('Line ' + str(cnt) + ': ' + line)
         words = line.split()
         for word in words:
@@ -144,12 +144,12 @@ def main():
     dictionary = build_dictionary(in_dict)
 
     try:
-        fd = open(in_file, 'r')
-        new_text = parse_file(fd, dictionary, in_min)
+        in_fd = open(in_file, 'r')
+        new_text = parse_file(in_fd, dictionary, in_min)
         new_file = open('dumb.txt', 'w')
         new_file.write(new_text)
         new_file.close()
-        fd.close()
+        in_fd.close()
     except:
         print('File does not exist!')
         sys.exit()
