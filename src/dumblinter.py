@@ -1,11 +1,12 @@
+import sys
+import getopt
 from bs4 import BeautifulSoup
 import requests
-import sys, getopt
 
-base_url = r"https://www.thesaurus.com/browse/{0}"
+BASE_URL = r"https://www.thesaurus.com/browse/{0}"
 
 # dictionary src: https://www.ef.com/wwen/english-resources/english-vocabulary/top-1000-words/
-default_dict = 'dict.txt'
+DEFAULT_DICT = 'dict.txt'
 
 def usage():
     '''Help menu.'''
@@ -18,11 +19,11 @@ def usage():
     print('ALL WORDS WILL BE MADE lower caps.')
     sys.exit()
 
-def findSynonyms(word):
+def find_synonyms(word):
     '''Function that searches the Thesaurus for synonyms. Returns a list
        of synonyms.'''
     #format the url for the word given
-    search_url = base_url.format(word)
+    search_url = BASE_URL.format(word)
 
     # try the request
     try:
@@ -49,7 +50,7 @@ def findSynonyms(word):
         synonyms.append(item.get_text())
     return synonyms
 
-def buildDictionary(dct):
+def build_dictionary(dct):
     '''Takes in file name and builds a dictionary set from it.'''
     dictionary = set()
     print(dct)
@@ -64,7 +65,7 @@ def buildDictionary(dct):
         usage()
     return dictionary
 
-def displaySynonyms(lst, dictionary):
+def display_synonyms(lst, dictionary):
     '''Displays numbered options list.'''
     print('Note: Words in the dictionary have an x in front of the number.')
     for i, s in enumerate(lst, 1):
@@ -75,43 +76,45 @@ def displaySynonyms(lst, dictionary):
     print('\n', end='')
 
 
-def parseFile(fd, dictionary, minimum = 3):
+def parse_file(fd, dictionary, minimum=3):
     '''Takes in file descriptor and a dictionary and parses the file.
        Returns text for a new file.'''
-    newText = ''
+    print(dictionary)
+    new_text = ''
     for cnt, line in enumerate(fd, 1):
         print('Line ' + str(cnt) + ': ' + line)
         words = line.split()
         for word in words:
             if word.lower() not in dictionary and len(word) >= minimum:
                 print("Word '" + word + "' is not in the dictionary. Finding synonyms...")
-                syn = findSynonyms(word.lower())
+                syn = find_synonyms(word.lower())
                 if len(syn) == 0:
                     print('No synonyms have been found for: ' + word + '.')
                     continue
-                displaySynonyms(syn, dictionary)
+                display_synonyms(syn, dictionary)
                 while True:
                     try:
                         n = int(input('Pick a number or type 0 to pass: '))
                         if n == 0:
-                            newText += word
-                            newText += ' '
+                            new_text += word
+                            new_text += ' '
                             break
-                        newText += syn[n-1]
-                        newText += ' '
+                        new_text += syn[n-1]
+                        new_text += ' '
                         break
                     except:
                         print('Not a number!')
             else:
-                newText += word
-                newText += ' '
-        newText += '\n'
-    return newText
+                new_text += word
+                new_text += ' '
+        new_text += '\n'
+    return new_text
 
 def main():
-    inFile = ''
-    inDict = ''
-    inMin = 3
+    '''Main program that gets called at launch.'''
+    in_file = ''
+    in_dict = ''
+    in_min = 3
     # handle command line arguments
     if len(sys.argv) < 2:
         usage()
@@ -123,29 +126,29 @@ def main():
         if opt in ('-h', '--help'):
             usage()
         elif opt in ('-f', '--file'):
-            inFile = arg
+            in_file = arg
         elif opt in ('-d', '--dict'):
-            inDict = arg
+            in_dict = arg
         elif opt in ('-m', '--min'):
-            inMin = int(arg)
+            in_min = int(arg)
         else:
             usage()
 
     # handle unspecified arguments
-    if inFile == '':
+    if in_file == '':
         print('File name is missing.')
         sys.exit()
-    if inDict == '':
-        inDict = default_dict
+    if in_dict == '':
+        in_dict = DEFAULT_DICT
 
-    dictionary = buildDictionary(inDict)
+    dictionary = build_dictionary(in_dict)
 
     try:
-        fd = open(inFile, 'r')
-        newText = parseFile(fd, dictionary, inMin)
-        newFile = open('dumb.txt', 'w')
-        newFile.write(newText)
-        newFile.close()
+        fd = open(in_file, 'r')
+        new_text = parse_file(fd, dictionary, in_min)
+        new_file = open('dumb.txt', 'w')
+        new_file.write(new_text)
+        new_file.close()
         fd.close()
     except:
         print('File does not exist!')
