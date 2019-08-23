@@ -1,7 +1,15 @@
+# system parsing
 import sys
 import getopt
+# web parsing
 from bs4 import BeautifulSoup
 import requests
+# terminal output coloring
+import colorama
+from termcolor import colored
+
+# initialize command line coloring for Windows
+colorama.init()
 
 BASE_URL = r"https://www.thesaurus.com/browse/{0}"
 
@@ -68,10 +76,9 @@ def build_dictionary(dict_file):
 
 def display_synonyms(lst, dictionary):
     '''Displays numbered options list.'''
-    print('Note: Words in the dictionary have an x in front of the number.')
     for i, s in enumerate(lst, 1):
         if s in dictionary:
-            print('x' + str(i) + ': ' + str(s), end='  ')
+            print(colored('-' + str(i) + ': ' + str(s), 'green'), end='  ')
         else:
             print('-' + str(i) + ': ' + str(s), end='  ')
     print('\n', end='')
@@ -103,7 +110,7 @@ def parse_file(file, dictionary, minimum=3):
                         new_text += ' '
                         break
                     except:
-                        print('Not a number!')
+                        print(colored('Not a number!', 'red'))
             else:
                 new_text += word
                 new_text += ' '
@@ -136,7 +143,8 @@ def main():
 
     # handle unspecified arguments
     if in_file == '':
-        print('File name is missing.')
+        print(colored('File name is missing.', 'red'))
+        usage()
         sys.exit()
     if in_dict == '':
         in_dict = DEFAULT_DICT
@@ -151,7 +159,7 @@ def main():
         new_file.close()
         in_fd.close()
     except:
-        print('File does not exist!')
+        print(colored('File does not exist!', 'red'))
         sys.exit()
 
 main()
